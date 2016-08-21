@@ -3,18 +3,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Stack;
 
 class Vertex {
 	public String data;
 	public Edge headOfEdgeList;
-	public boolean visited;
+	public boolean visited; // for BFS
 	public Vertex parent;
+	public int distFromSrc;
+	public boolean discovered; // for DFS
 
 	public Vertex(String data) {
 		this.data = data;
 		this.headOfEdgeList = null;
 		this.visited = false;
 		this.parent = null;
+		this.distFromSrc = Integer.MAX_VALUE;
 	}
 
 	public void addEdge(Vertex vertex, int edgeDistance) {
@@ -105,12 +109,65 @@ public class Graph {
 		}
 	}
 
+	public void DFS(String src) {
+		Vertex root = null;
+		if (this.adjacencyList.containsKey(src)) {
+			root = this.adjacencyList.get(src);
+		}
+		if (root == null) {
+			return;
+		}
+		Stack<Vertex> stack = new Stack<>();
+		stack.push(root);
+		while (!stack.isEmpty()) {
+			root = stack.pop();
+			if (!root.discovered) {
+				root.discovered = true;
+				System.out.println(root.data);
+				Edge edge = root.headOfEdgeList;
+				while (edge != null) {
+					stack.push(edge.vertex);
+					edge = edge.next;
+				}
+			}
+		}
+	}
+	
+	public void DFS_Rec(String src){
+		Vertex root = null;
+		if(this.adjacencyList.containsKey(src)){
+			root = this.adjacencyList.get(src);
+		}
+		if(root == null){
+			return;
+		}
+		if(root.discovered){
+			return;	
+		}
+		root.discovered = true;
+		System.out.println(root.data);
+		Edge edge = root.headOfEdgeList;
+		while(edge != null){
+			this.DFS_Rec(edge.vertex.data);
+			edge = edge.next;
+		}
+	}
+
 	public static void main(String ar[]) {
 		String[] input = { "a:10:a", "a:5:b", "b:5:a", "b:5:c", "c:5:b", "a:11:c", "c:11:a", "b:7:d", "d:7:b", "c:12:d",
 				"d:12:c" };
 		Graph graph = new Graph(input);
 
 		graph.BFS("a");
+		
+		//call either DFS or DFS recursion
+		System.out.println("DFS start: ");
+		//graph.DFS("a");
+		System.out.println("DFS end");
+		
+		System.out.println("DFS recursive  start: ");
+		graph.DFS_Rec("a");
+		System.out.println("DFS recursive end");
 
 		for (Map.Entry<String, Vertex> entry : graph.adjacencyList.entrySet()) {
 			System.out.print(entry.getKey() + "\t| --> ");
